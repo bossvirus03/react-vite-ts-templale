@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import UsersPage from "./screen/Users.page.tsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -9,7 +10,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/users",
-    element: <div>manage user</div>,
+    element: <UsersPage />,
   },
 ]);
 ReactDOM.createRoot(document.getElementById("root")!).render(
