@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 //import "../../styles/User.css";
-import { Table } from 'antd';
+import { Table, Button, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { PlusOutlined } from '@ant-design/icons';
 
 
 interface IUsers
@@ -16,7 +17,7 @@ const columns : ColumnsType<IUsers> = [
     dataIndex: "email",
     render: (value, record) => {
       return (<a>{record.email}</a>)
-    }
+    },
   },
   {
     title: "Name",
@@ -28,6 +29,20 @@ const columns : ColumnsType<IUsers> = [
   },
 ]
 function UsersTable() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const [listUsers, setListUsers] = useState([]);
   useEffect(()=>{
     getData();
@@ -61,10 +76,24 @@ function UsersTable() {
   
   return (
     <div>
+      <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
       <h2>TABLE USERS</h2>
+      <div>
+      <Button 
+      type="primary" 
+      icon={<PlusOutlined/>}
+      onClick={showModal}>Add New</Button>
+      </div>
+      </div>
+      <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Modal>
       <Table
         columns={columns}
         dataSource={listUsers}
+        rowKey={"_id"}
       />
     </div>
   );
