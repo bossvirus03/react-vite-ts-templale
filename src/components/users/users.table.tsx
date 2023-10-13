@@ -1,11 +1,32 @@
 import { useEffect, useState } from "react";
-import "../../styles/User.css";
+//import "../../styles/User.css";
+import { Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+
+
 interface IUsers
 {
   email: string;
   username: string;
   role: string;
 }
+const columns : ColumnsType<IUsers> = [
+  {
+    title: "Email",
+    dataIndex: "email",
+    render: (value, record) => {
+      return (<a>{record.email}</a>)
+    }
+  },
+  {
+    title: "Name",
+    dataIndex: "username",
+  },
+  {
+    title: "Role",
+    dataIndex: "role",
+  },
+]
 function UsersTable() {
   const [listUsers, setListUsers] = useState([]);
   useEffect(()=>{
@@ -41,28 +62,10 @@ function UsersTable() {
   return (
     <div>
       <h2>TABLE USERS</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <td>Email</td>
-          <td>Name</td>
-          <td>Role</td>
-          </tr>
-          
-        </thead>
-        <tbody>
-        {listUsers.map((user: IUsers, index)=>{
-          return (
-          <tr key={index}>
-          <td>{user.email}</td>
-          <td>{user.username}</td>
-          <td>{user.role}</td>
-        </tr>)
-          
-        })}
-        </tbody>
-      </table>
+      <Table
+        columns={columns}
+        dataSource={listUsers}
+      />
     </div>
   );
 }
