@@ -5,9 +5,7 @@ import type { ColumnsType } from "antd/es/table";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import CreateUserModal from "./create.user.modal";
 import UpdateUserModal from "./update.user.modal";
-
-const accessToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJvc3N2aXJ1czAzIiwiZW1haWwiOiJuZ3V5ZW5sb2lAZ21haWwuY29tIiwiX2lkIjoiNjUyNmYxYzhmMDllYjE1ZDk1OTU1NjMwIiwicm9sZSI6IlVTRVIiLCJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiaWF0IjoxNjk3MTkwNjQ4LCJleHAiOjE2OTgwNTQ2NDh9.-HJBrmfmDpAFqvvIwZW9arYN1dW_CgJRHmtZcfETUfg";
+const accessToken = localStorage.getItem("access_token") as string;
 export interface IUsers {
   _id?: string;
   email: string;
@@ -19,19 +17,28 @@ export interface IUsers {
   role: string;
 }
 function UsersTable() {
+  const [meta, setMeta] = useState({
+    current: 1,
+    pageSize: 2,
+    pages: 1,
+    total: 100,
+  });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState<null | IUsers>(null);
   const [listUsers, setListUsers] = useState([]);
 
   const getData = async () => {
-    const response = await fetch("http://localhost:3000/users", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await fetch(
+      `http://localhost:3000/users?page=${meta.current}&limit=${meta.pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
     const dataUser = await response.json();
     if (!dataUser.data) {
       notification.error({
@@ -40,7 +47,38 @@ function UsersTable() {
       });
     }
     setListUsers(dataUser.data.result);
-    return dataUser.data._id;
+    setMeta({
+      current: dataUser.data.meta.current,
+      pageSize: dataUser.data.meta.pageSize,
+      pages: dataUser.data.meta.pages,
+      total: dataUser.data.meta.total,
+    });
+  };
+  const handleOnChange = async (page: number, pageSize: number) => {
+    const response = await fetch(
+      `http://localhost:3000/users?page=${page}&limit=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const dataUser = await response.json();
+    if (!dataUser.data) {
+      notification.error({
+        message: "Có lỗi xảy ra",
+        description: dataUser?.message || "Vui lòng đăng nhập lại!",
+      });
+    }
+    setListUsers(dataUser.data.result);
+    setMeta({
+      current: dataUser.data.meta.current,
+      pageSize: dataUser.data.meta.pageSize,
+      pages: dataUser.data.meta.pages,
+      total: dataUser.data.meta.total,
+    });
   };
   const confirm = async (user: IUsers) => {
     const res = await fetch(`http://localhost:3000/users/${user._id}`, {
@@ -142,7 +180,20 @@ function UsersTable() {
         dataUpdate={dataUpdate}
         setDataUpdate={setDataUpdate}
       />
-      <Table columns={columns} dataSource={listUsers} rowKey={"_id"} />
+      <Table
+        columns={columns}
+        dataSource={listUsers}
+        rowKey={"_id"}
+        pagination={{
+          current: meta.current,
+          total: meta.total,
+          pageSize: meta.pageSize,
+          onChange: (page: number, pageSize: number) =>
+            handleOnChange(page, pageSize),
+          pageSizeOptions: [5, 10, 20, 100],
+          showSizeChanger: true,
+        }}
+      />
     </div>
   );
 }

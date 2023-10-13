@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import UsersPage from "./screen/Users.page.tsx";
 import { UsergroupDeleteOutlined, HomeOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Menu } from "antd";
+import { Menu, notification } from "antd";
 const items: MenuProps["items"] = [
   {
     label: <Link to={""}>Home</Link>,
@@ -26,7 +26,31 @@ const Header = () => {
     console.log("click ", e);
     setCurrent(e.key);
   };
+  const getData = async () => {
+    const response = await fetch("http://localhost:3000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: "bossvirus03",
+        password: "123456",
+      }),
+    });
+    const dataLogin = await response.json();
 
+    if (dataLogin.data) {
+      localStorage.setItem("access_token", dataLogin.data.access_token);
+    } else {
+      notification.error({
+        message: "Có lỗi xảy ra",
+        description: dataLogin?.message || "Vui lòng đăng nhập lại!",
+      });
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
   return (
     <Menu
       onClick={onClick}
