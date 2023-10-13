@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 //import "../../styles/User.css";
-import { Table, Button, notification } from "antd";
+import { Table, Button, notification, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import CreateUserModal from "./create.user.modal";
 import UpdateUserModal from "./update.user.modal";
 
+const accessToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJvc3N2aXJ1czAzIiwiZW1haWwiOiJuZ3V5ZW5sb2lAZ21haWwuY29tIiwiX2lkIjoiNjUyNmYxYzhmMDllYjE1ZDk1OTU1NjMwIiwicm9sZSI6IlVTRVIiLCJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiaWF0IjoxNjk3MTkwNjQ4LCJleHAiOjE2OTgwNTQ2NDh9.-HJBrmfmDpAFqvvIwZW9arYN1dW_CgJRHmtZcfETUfg";
 export interface IUsers {
   _id?: string;
   email: string;
@@ -16,12 +18,45 @@ export interface IUsers {
   address: string;
   role: string;
 }
-
 function UsersTable() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState<null | IUsers>(null);
   const [listUsers, setListUsers] = useState([]);
+
+  const getData = async () => {
+    const response = await fetch("http://localhost:3000/users", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const dataUser = await response.json();
+    if (!dataUser.data) {
+      notification.error({
+        message: "Có lỗi xảy ra",
+        description: dataUser?.message || "Vui lòng đăng nhập lại!",
+      });
+    }
+    setListUsers(dataUser.data.result);
+    return dataUser.data._id;
+  };
+  const confirm = async (user: IUsers) => {
+    const res = await fetch(`http://localhost:3000/users/${user._id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    getData();
+    if (res) {
+      message.success("Deleted a User");
+    } else {
+      message.error("Có lỗi xảy ra");
+    }
+  };
   const columns: ColumnsType<IUsers> = [
     {
       title: "Email",
@@ -42,41 +77,37 @@ function UsersTable() {
       title: "Actions",
       render: (value, record) => {
         return (
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => {
-              setIsUpdateModalOpen(true);
-              setDataUpdate(record);
-            }}
-          />
+          <>
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => {
+                setIsUpdateModalOpen(true);
+                setDataUpdate(record);
+              }}
+            />
+            <Popconfirm
+              title="Delete a user"
+              description={`Bạn có chắc muốn xóa người dùng ${record.username}`}
+              onConfirm={() => confirm(record)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                style={{ marginLeft: "20px" }}
+                type="primary"
+                danger
+                icon={<DeleteOutlined />}
+              />
+            </Popconfirm>
+          </>
         );
       },
     },
   ];
-  const accessToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJvc3N2aXJ1czAzIiwiZW1haWwiOiJuZ3V5ZW5sb2lAZ21haWwuY29tIiwiX2lkIjoiNjUyNmYxYzhmMDllYjE1ZDk1OTU1NjMwIiwicm9sZSI6IlVTRVIiLCJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiaWF0IjoxNjk3MTkwNjQ4LCJleHAiOjE2OTgwNTQ2NDh9.-HJBrmfmDpAFqvvIwZW9arYN1dW_CgJRHmtZcfETUfg";
   useEffect(() => {
     getData();
   }, []);
-  const getData = async () => {
-    const response = await fetch("http://localhost:3000/users", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const dataUser = await response.json();
-    if (!dataUser.data) {
-      notification.error({
-        message: "Có lỗi xảy ra",
-        description: dataUser?.message || "Vui lòng đăng nhập lại!",
-      });
-    }
-    setListUsers(dataUser.data.result);
-    return dataUser.data._id;
-  };
   return (
     <div>
       <div
