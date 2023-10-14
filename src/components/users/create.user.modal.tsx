@@ -1,5 +1,4 @@
-import { Modal, Input, notification } from "antd";
-import { useState } from "react";
+import { Modal, Input, notification, Form, Select, InputNumber } from "antd";
 import { IUsers } from "./users.table";
 
 interface IProps {
@@ -10,35 +9,12 @@ interface IProps {
 }
 
 function CreateUserModal(props: IProps) {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState("");
-  const [address, setAddress] = useState("");
-  const [role, setRole] = useState("");
+  const [form] = Form.useForm();
 
+  const { Option } = Select;
   const handleCloseCreateModal = () => {
+    form.resetFields();
     setIsCreateModalOpen(false);
-    setUsername("");
-    setEmail("");
-    setPassword("");
-    setAge("");
-    setGender("");
-    setAddress("");
-    setRole("");
-  };
-  const handleOk = () => {
-    const data = {
-      username,
-      email,
-      password,
-      age,
-      gender,
-      address,
-      role,
-    };
-    addUser(data);
   };
 
   const { accessToken, getData, isCreateModalOpen, setIsCreateModalOpen } =
@@ -67,16 +43,90 @@ function CreateUserModal(props: IProps) {
       });
     }
   };
-
+  const onFinish = (value: IUsers) => {
+    addUser(value);
+  };
   return (
     <Modal
       title="Add new user"
       open={isCreateModalOpen}
-      onOk={handleOk}
+      onOk={() => form.submit()}
       onCancel={() => handleCloseCreateModal()}
       maskClosable={false}
     >
-      <div>
+      <Form
+        name="basic"
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        autoComplete="off"
+        layout="vertical"
+        form={form}
+      >
+        <Form.Item
+          label="Username"
+          name="username"
+          rules={[{ required: true, message: "Please input your username!" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: "Please input your password!" }]}
+        >
+          <Input.Password />
+        </Form.Item>
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[{ required: true, message: "Please input your email!" }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Age"
+          name="age"
+          rules={[{ required: true, message: "Please input your age!" }]}
+        >
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+        <Form.Item
+          label="Address"
+          name="address"
+          rules={[{ required: true, message: "Please input your address!" }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Gender"
+          name="gender"
+          rules={[{ required: true, message: "Please input your gender!" }]}
+        >
+          <Select
+            placeholder="Select a option and change input text above"
+            allowClear
+          >
+            <Option value="male">male</Option>
+            <Option value="female">female</Option>
+            <Option value="other">other</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item
+          label="Role"
+          name="role"
+          rules={[{ required: true, message: "Please input your role!" }]}
+        >
+          <Select
+            placeholder="Select a option and change input text above"
+            allowClear
+          >
+            <Option value="ADMIN">ADMIN</Option>
+            <Option value="USER">USER</Option>
+          </Select>
+        </Form.Item>
+      </Form>
+      {/* <div>
         <label>username:</label>
         <Input value={username} onChange={(e) => setUsername(e.target.value)} />
       </div>
@@ -103,7 +153,7 @@ function CreateUserModal(props: IProps) {
       <div>
         <label>role:</label>
         <Input value={role} onChange={(e) => setRole(e.target.value)} />
-      </div>
+      </div> */}
     </Modal>
   );
 }
