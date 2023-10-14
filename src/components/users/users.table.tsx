@@ -19,7 +19,7 @@ export interface IUsers {
 function UsersTable() {
   const [meta, setMeta] = useState({
     current: 1,
-    pageSize: 2,
+    pageSize: 5,
     pages: 1,
     total: 100,
   });

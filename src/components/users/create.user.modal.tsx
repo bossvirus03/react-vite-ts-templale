@@ -126,34 +126,6 @@ function CreateUserModal(props: IProps) {
           </Select>
         </Form.Item>
       </Form>
-      {/* <div>
-        <label>username:</label>
-        <Input value={username} onChange={(e) => setUsername(e.target.value)} />
-      </div>
-      <div>
-        <label>email:</label>
-        <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-      </div>
-      <div>
-        <label>password:</label>
-        <Input value={password} onChange={(e) => setPassword(e.target.value)} />
-      </div>
-      <div>
-        <label>age:</label>
-        <Input value={age} onChange={(e) => setAge(e.target.value)} />
-      </div>
-      <div>
-        <label>gender:</label>
-        <Input value={gender} onChange={(e) => setGender(e.target.value)} />
-      </div>
-      <div>
-        <label>address</label>
-        <Input value={address} onChange={(e) => setAddress(e.target.value)} />
-      </div>
-      <div>
-        <label>role:</label>
-        <Input value={role} onChange={(e) => setRole(e.target.value)} />
-      </div> */}
     </Modal>
   );
 }
